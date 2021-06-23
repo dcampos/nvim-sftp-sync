@@ -1,9 +1,17 @@
 import pysftp
-import sys
+import time
 import os
 import logging
 import socket
 from threading import Timer
+from pynvim import Nvim
+
+
+class SyncStatus:
+    NONE = -1
+    OK = 0
+    SENDING = 1
+    ERROR = 2
 
 
 def debounce(wait, call_id, func):
@@ -30,8 +38,8 @@ def debounce(wait, call_id, func):
 class SftpClient:
     WAIT_TIME = 0.25
 
-    def __init__(self, nvim, servers):
-        self.nvim = nvim
+    def __init__(self, nvim: Nvim, servers: dict):
+        self.vim = nvim
         self.servers = servers
         self.pool = {}
         self.runners = {}
@@ -51,33 +59,50 @@ class SftpClient:
         debounce(self.WAIT_TIME, call_id, lambda: self._do_sync(file, destination, selected_server))
 
     def _do_sync(self, file, destination, selected_server):
+        self.vim.async_call(
+            lambda: self._set_status(file, SyncStatus.SENDING))
+
+        start = time.time()
+
         try:
             sftp = self._connect(selected_server)
         except Exception as e:
             self.logger.error(e, exc_info=True)
-            result, msg = False, '[SFTP] -> Error connecting to {}: {}'.format(
+            result, msg = False, 'Error connecting to {}: {}'.format(
                 selected_server, repr(e))
 
-        result, msg = True, '[SFTP] -> {} -> OK'.format(selected_server)
+        result, msg = True, '{} -> OK'.format(selected_server)
 
         try:
             self.logger.debug('Sending file {}'.format(file))
             sftp.put(file, destination)
         except socket.timeout as e:
             self.logger.error(e, exc_info=True)
-            result, msg = False, '[SFTP] -> Timeout error: {}'.format(repr(e))
+            result, msg = False, 'Timeout error: {}'.format(repr(e))
+            self.reset()
         except OSError as e:
             self.logger.error(e, exc_info=True)
             remote_dir = os.path.dirname(destination)
             sftp.makedirs(remote_dir)
             sftp.put(file, destination)
 
+        elapsed = time.time() - start
+
+        self.vim.async_call(lambda: self._update_results(file, result, msg, elapsed))
+
+    def _update_results(self, file, result, msg, elapsed):
+        self._set_status(file, SyncStatus.OK if result else SyncStatus.ERROR)
+
         if result:
-            self.nvim.async_call(
-                lambda: self.nvim.out_write(msg + "\n"))
+            self.vim.out_write(f"[SFTP] -> {msg} ({elapsed:.2f}s)\n")
         else:
-            self.nvim.async_call(
-                lambda: self.nvim.err_write(msg + "\n"))
+            self.vim.err_write(f"[SFTP] -> {msg}\n")
+
+    def _set_status(self, file, status):
+        bufnr = self.vim.funcs.bufnr(file)
+        buffer = self.vim.buffers[bufnr]
+        buffer.vars['sync_status'] = status
+        self.vim.command('doautocmd User SftpStatusChanged')
 
     def _connect(self, server):
         try:
@@ -97,7 +122,7 @@ class SftpClient:
                                      password=password,
                                      private_key=private_key,
                                      private_key_pass=private_key_pass)
-            sftp.timeout = 10
+            sftp.timeout = 30
             sftp._transport.set_keepalive(60)
             self.pool[server] = sftp
         return sftp
