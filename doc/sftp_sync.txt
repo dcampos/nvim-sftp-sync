@@ -14,9 +14,9 @@ CONTENTS                                                  *sftp-sync-contents*
 ==============================================================================
 INTRODUCTION                                          *sftp-sync-introduction*
 
-SftpSync is a Neovim Python-based remote plugin that helps you to sync
-your projects over SFTP. It uses pysftp under the hood to communicate with the
-servers.
+SftpSync is a Neovim Python-based remote plugin that helps you sync your
+projects to an SFTP server. It uses pysftp under the hood to communicate with
+the server.
 
 
 ==============================================================================
@@ -62,7 +62,7 @@ COMMANDS                                                  *sftp-sync-commands*
 :SftpSync {file}                                                    |SftpSync|
 
     Sends a local file to the server. If {file} isn't passed, sends the
-    the file opened in the active buffer.
+    the file open in the active buffer.
 
 :SftpReset                                                         |SftpReset|
 
