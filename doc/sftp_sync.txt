@@ -1,0 +1,91 @@
+*sftp_sync.txt* Sftp syncing plugin for Neovim.
+
+SftpSync                                                           *sftp-sync*
+
+==============================================================================
+CONTENTS                                                  *sftp-sync-contents*
+
+    INTRODUCTION.........................|sftp-sync-introduction|
+    USAGE................................|sftp-sync-usage|
+    COMMANDS.............................|sftp-sync-commands|
+    LICENSE..............................|sftp-sync-license|
+
+
+==============================================================================
+INTRODUCTION                                          *sftp-sync-introduction*
+
+SftpSync is a Neovim is a Python-based remote plugin that helps you to sync
+your projects over SFTP. It uses pysftp under the hood to communicate with the
+servers.
+
+
+==============================================================================
+USAGE                                                        *sftp-sync-usage*
+
+SftpSync expects a |g:sync_servers| variable to be defined. This variable must
+contain all information needed to establish a connection to a given server.
+Example:
+>
+    let g:sync_servers = {
+                \     'server1': {
+                \         'local_path': '/home/myuser/projects/project1',
+                \         'remote_path': '/server/project1',
+                \         'host': 'myserver.com',
+                \         'port': 22,
+                \         'private_key': '/home/myuser/.ssh/id_rsa',
+                \         'private_key_pass': 'secret@pass',
+                \         'username': 'mysftpuser',
+                \         'password': 's3cret',
+                \     },
+                \     'server2': {
+                \         'local_path': '/home/my/user/projects/project2',
+                \         'remote_path': '/server/project2',
+                \         'host': 'myserver.com',
+                \         'port': 22,
+                \         'private_key': '/home/myuser/.ssh/id_rsa',
+                \         'private_key_pass': 'secret@pass',
+                \         'username': 'mysftpuser',
+                \         'password': 's3cret',
+                \     }
+                \ }
+<
+
+Some of these parameters are optional depending on the context. For example,
+you probably don't need do specify a `username`/`password` if you provide a
+`private_key`/`private_key_pass`, and vice versa. The `port` parameter is only
+needed if your server uses a non-standard one.
+
+
+==============================================================================
+COMMANDS                                                  *sftp-sync-commands*
+
+:SftpSync {file}                                                    |SftpSync|
+
+    Sends a local file to the server. If {file} isn't passed, sends the
+    the file opened in the active buffer.
+
+:SftpReset                                                         |SftpReset|
+
+    Closes any active connection.
+
+:SftpDisable                                                     |SftpDisable|
+
+    Sets the plugin as not enabled. Any sync command will be ignored.
+
+:SftpEnable                                                       |SftpEnable|
+
+    Sets the plugin as enabled.
+
+:SftpOpenLog                                                     |SftpOpenLog|
+
+    Opens the log file in the current Neovim window.
+
+
+==============================================================================
+LICENCE                                                    *sftp-sync-license*
+
+SftpSync is licensed under the MIT license.
+
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:

@@ -1,0 +1,7 @@
+sftp-sync	sftp_sync.txt	/*sftp-sync*
+sftp-sync-commands	sftp_sync.txt	/*sftp-sync-commands*
+sftp-sync-contents	sftp_sync.txt	/*sftp-sync-contents*
+sftp-sync-introduction	sftp_sync.txt	/*sftp-sync-introduction*
+sftp-sync-license	sftp_sync.txt	/*sftp-sync-license*
+sftp-sync-usage	sftp_sync.txt	/*sftp-sync-usage*
+sftp_sync.txt	sftp_sync.txt	/*sftp_sync.txt*
