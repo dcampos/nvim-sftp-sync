@@ -21,7 +21,7 @@ class SftpSync(object):
         self.servers = vars.get("sync_servers", {})
         self.sftp = SftpClient(self.nvim, self.servers)
 
-    @pynvim.command('SftpSync', nargs='?', complete='file')
+    @pynvim.command('SftpSend', nargs='?', complete='file')
     def sftp_sync(self, args):
         if not self.enabled: return
         try:

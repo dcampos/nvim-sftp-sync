@@ -59,7 +59,7 @@ needed if your server uses a non-standard one.
 ==============================================================================
 COMMANDS                                                  *sftp-sync-commands*
 
-:SftpSync {file}                                                    |SftpSync|
+:SftpSend {file}                                                    |SftpSend|
 
     Sends a local file to the server. If {file} isn't passed, sends the
     the file open in the active buffer.

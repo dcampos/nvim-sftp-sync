@@ -40,7 +40,7 @@ let g:sync_servers = {
 Send the currently open file:
 
 ```
-:SftpSync
+:SftpSend
 ```
 
 See `:help sftp-sync` for more details.
