@@ -14,7 +14,7 @@ CONTENTS                                                  *sftp-sync-contents*
 ==============================================================================
 INTRODUCTION                                          *sftp-sync-introduction*
 
-SftpSync is a Neovim is a Python-based remote plugin that helps you to sync
+SftpSync is a Neovim Python-based remote plugin that helps you to sync
 your projects over SFTP. It uses pysftp under the hood to communicate with the
 servers.
 
