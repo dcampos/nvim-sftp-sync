@@ -46,10 +46,13 @@ class SftpClient:
         self.logger = logging.getLogger('SFTP_SYNC')
         pass
 
-    def sync(self, file) -> (bool, str):
+    def sync(self, file) -> None:
         for name, server in self.servers.items():
             if os.path.commonpath([file, server['local_path']]) == server['local_path']:
                 selected_server = name
+                break
+        else:
+            raise Exception("No server selected for the current path")
         server = self.servers[selected_server]
         relative_path = os.path.relpath(file, server['local_path'])
         destination = os.path.join(server['remote_path'], relative_path)
@@ -70,6 +73,8 @@ class SftpClient:
             self.logger.error(e, exc_info=True)
             result, msg = False, 'Error connecting to {}: {}'.format(
                 selected_server, repr(e))
+            self.vim.async_call(lambda: self._update_results(file, result, msg, None))
+            return
 
         result, msg = True, '{} -> OK'.format(selected_server)
 
@@ -128,12 +133,13 @@ class SftpClient:
         return sftp
 
     def reset(self):
+        self.quit()
         self.pool = {}
 
     def quit(self):
-        for server, connection in self.pool.items():
+        for connection in self.pool.values():
             connection.close()
 
     def keepalive(self):
-        for server, connection in self.pool.items():
+        for connection in self.pool.values():
             connection.listdir()
