@@ -134,6 +134,8 @@ class SftpClient:
 
     def reset(self):
         self.quit()
+        for buffer in self.vim.buffers:
+            buffer.vars['sync_status'] = SyncStatus.NONE
         self.pool = {}
 
     def quit(self):
