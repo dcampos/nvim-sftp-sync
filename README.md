@@ -26,7 +26,7 @@ pip install pysftp
 Basic server configuration:
 
 ```
-let g:sync_servers = {
+let g:sftp_sync_servers = {
             \     'server1': {
             \         'local_path': '/home/myuser/projects/project1',
             \         'remote_path': '/server/project1',

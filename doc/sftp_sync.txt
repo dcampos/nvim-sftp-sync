@@ -22,11 +22,11 @@ the server.
 ==============================================================================
 USAGE                                                        *sftp-sync-usage*
 
-SftpSync expects a |g:sync_servers| variable to be defined. This variable must
-contain all information needed to establish a connection to a given server.
-Example:
+SftpSync expects a |g:sftp_sync_servers| variable to be defined. This variable
+must contain all information needed to establish a connection to a given
+server. Example:
 >
-    let g:sync_servers = {
+    let g:sftp_sync_servers = {
                 \     'server1': {
                 \         'local_path': '/home/myuser/projects/project1',
                 \         'remote_path': '/server/project1',
@@ -54,6 +54,21 @@ Some of these parameters are optional depending on the context. For example,
 you probably don't need do specify a `username`/`password` if you provide a
 `private_key`/`private_key_pass`, and vice versa. The `port` parameter is only
 needed if your server uses a non-standard one.
+
+                                                           *sftp-sync-logging*
+
+Logging can be enabled by setting the `g:sftp_sync_log_level` variable to any
+value supported by the `logging` Python module. By default it is set to
+'DEBUG'.
+
+The file to log to is can be changed using the `g:sftp_sync_log_file`
+variable. By default it is set to `<tempdir>/sftp_sync.log`.
+
+Example logging configuration:
+>
+    let g:sftp_sync_log_level = 'WARN'
+    let g:sftp_sync_log_file = '/home/myuser/.cache/sftp_sync.log'
+<
 
 
 ==============================================================================

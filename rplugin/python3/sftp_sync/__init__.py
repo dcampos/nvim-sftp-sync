@@ -10,15 +10,16 @@ class SftpSync(object):
         self.nvim = nvim
         vars = self.nvim.vars
         self.enabled = True
-        self.log_file = vars.get('sync_log',
+        self.log_file = vars.get('sftp_sync_log_file',
                                  '{}/{}'.format(gettempdir(), 'sftp_sync.log'))
         self.logger = logging.getLogger('SFTP_SYNC')
-        self.logger.setLevel(logging.DEBUG)
+        self.log_level = vars.get('sftp_sync_log_level', logging.DEBUG)
+        self.logger.setLevel(self.log_level)
         file_handler = logging.FileHandler(self.log_file)
         formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
-        self.servers = vars.get("sync_servers", {})
+        self.servers = vars.get("stp_sync_servers", {})
         self.sftp = SftpClient(self.nvim, self.servers)
 
     @pynvim.command('SftpSend', nargs='?', complete='file')
