@@ -26,7 +26,7 @@ class SftpSync(object):
     def sftp_sync(self, args):
         if not self.enabled: return
         try:
-            file = args[0]
+            file = self.nvim.funcs.fnamemodify(args[0], ':p')
         except IndexError:
             file = self.nvim.eval("expand('%:p')")
         self.sftp.sync(file)
