@@ -43,9 +43,21 @@ class SftpSync(object):
     def sftp_enable(self, args):
         self.enabled = True
 
-    @pynvim.command('SftpOpenLog', nargs='0')
+    @pynvim.command('SftpOpenLog', nargs=0)
     def sftp_open_log(self, args):
         self.nvim.command('edit {}'.format(self.log_file))
+
+    @pynvim.command('SftpSelectServer', nargs=1, complete='customlist,_sftp_complete_server')
+    def sftp_select_server(self, args):
+        self.nvim.vars['sftp_sync_selected_server'] = args[0]
+        self.sftp.selected_server = args[0]
+
+    @pynvim.function('_sftp_complete_server', sync=True)
+    def sftp_complete_server(self, args):
+        if len(self.servers) > 0:
+            return list(self.servers.keys())
+        else:
+            return []
 
     @pynvim.autocmd('VimLeave', pattern='*', sync=False)
     def on_vimleave(self):

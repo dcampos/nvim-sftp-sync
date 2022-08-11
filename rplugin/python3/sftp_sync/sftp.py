@@ -44,22 +44,27 @@ class SftpClient:
         self.pool = {}
         self.runners = {}
         self.logger = logging.getLogger('SFTP_SYNC')
-        pass
+        self.selected_server = None
 
     def sync(self, file) -> None:
-        for name, server in self.servers.items():
-            if os.path.commonpath([file, server['local_path']]) == server['local_path']:
-                selected_server = name
-                break
+        if self.selected_server == None:
+            for name, server in self.servers.items():
+                if os.path.commonpath([file, server['local_path']]) == server['local_path']:
+                    selected_server = name
+                    break
+            else:
+                raise Exception("No server selected for the current path")
         else:
-            raise Exception("No server selected for the current path")
+            selected_server = self.selected_server
+        self.logger.debug('Selected server: {}'.format(selected_server))
         server = self.servers[selected_server]
         relative_path = os.path.relpath(file, server['local_path'])
         destination = os.path.join(server['remote_path'], relative_path)
 
         call_id = f'{file}:{destination}:{selected_server}'
+        self.logger.debug(call_id)
 
-        debounce(self.WAIT_TIME, call_id, lambda: self._do_sync(file, destination, selected_server))
+        debounce(self.WAIT_TIME, call_id, lambda: self.vim.async_call(self._do_sync, file, destination, selected_server))
 
     def _do_sync(self, file, destination, selected_server):
         self.vim.async_call(
@@ -84,6 +89,7 @@ class SftpClient:
         except socket.timeout as e:
             self.logger.error(e, exc_info=True)
             result, msg = False, 'Timeout error: {}'.format(repr(e))
+            self.vim.async_call(self.reset)
             self.reset()
         except OSError as e:
             self.logger.error(e, exc_info=True)
@@ -106,7 +112,7 @@ class SftpClient:
     def _set_status(self, file, status):
         bufnr = self.vim.funcs.bufnr(file)
         buffer = self.vim.buffers[bufnr]
-        buffer.vars['sync_status'] = status
+        buffer.vars['stfp_sync_status'] = status
         self.vim.command('doautocmd User SftpStatusChanged')
 
     def _connect(self, server):
