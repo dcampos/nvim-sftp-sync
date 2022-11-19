@@ -74,26 +74,43 @@ Example logging configuration:
 ==============================================================================
 COMMANDS                                                  *sftp-sync-commands*
 
-:SftpSend {file}                                                    |SftpSend|
+:SftpSend {file}                                                    *:SftpSend*
 
     Sends a local file to the server. If {file} isn't passed, sends the
     the file open in the active buffer.
 
-:SftpReset                                                         |SftpReset|
+:SftpReset                                                         *:SftpReset*
 
     Closes any active connection.
 
-:SftpDisable                                                     |SftpDisable|
+:SftpDisable                                                     *:SftpDisable*
 
     Sets the plugin as not enabled. Any sync command will be ignored.
 
-:SftpEnable                                                       |SftpEnable|
+:SftpEnable                                                       *:SftpEnable*
 
     Sets the plugin as enabled.
 
-:SftpOpenLog                                                     |SftpOpenLog|
+:SftpOpenLog                                                     *:SftpOpenLog*
 
     Opens the log file in the current Neovim window.
+
+:SftpSelectServer                                           *:SftpSelectServer*
+
+    Allows selecting a different server from the list.
+
+==============================================================================
+AUTOCOMMANDS                                              *sftp-sync-autocmds*
+
+:SftpStatusChanged                                         *SftpStatusChanged*
+
+    When the sync status for the current buffer has changed.
+
+    Possible values:
+        -1 = No status ~
+         0 = Done syncing ~
+         1 = Sending ~
+         2 = Syncing error ~
 
 
 ==============================================================================
