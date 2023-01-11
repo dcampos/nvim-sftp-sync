@@ -112,7 +112,7 @@ class SftpClient:
     def _set_status(self, file, status):
         bufnr = self.vim.funcs.bufnr(file)
         buffer = self.vim.buffers[bufnr]
-        buffer.vars['stfp_sync_status'] = status
+        buffer.vars['sftp_sync_status'] = status
         self.vim.command('doautocmd User SftpStatusChanged')
 
     def _connect(self, server):
@@ -141,7 +141,7 @@ class SftpClient:
     def reset(self):
         self.quit()
         for buffer in self.vim.buffers:
-            buffer.vars['sync_status'] = SyncStatus.NONE
+            buffer.vars['sftp_sync_status'] = SyncStatus.NONE
         self.pool = {}
 
     def quit(self):
