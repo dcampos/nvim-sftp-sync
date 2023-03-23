@@ -1,10 +1,10 @@
 import pysftp
 import time
-import os
 import logging
 import socket
 from threading import Timer
 from pynvim import Nvim
+from pathlib import Path, PurePosixPath
 
 
 class SyncStatus:
@@ -49,17 +49,22 @@ class SftpClient:
     def sync(self, file) -> None:
         if self.selected_server == None:
             for name, server in self.servers.items():
-                if os.path.commonpath([file, server['local_path']]) == server['local_path']:
+                if Path(file).is_relative_to(server['local_path']):
                     selected_server = name
                     break
             else:
                 raise Exception("No server selected for the current path")
         else:
             selected_server = self.selected_server
+
         self.logger.debug('Selected server: {}'.format(selected_server))
+
         server = self.servers[selected_server]
-        relative_path = os.path.relpath(file, server['local_path'])
-        destination = os.path.join(server['remote_path'], relative_path)
+        local_path = Path(server['local_path'])
+        file_path = Path(file)
+        relative_path = file_path.relative_to(local_path)
+        remote_path = PurePosixPath(server['remote_path'])
+        destination = (remote_path / relative_path).as_posix()
 
         call_id = f'{file}:{destination}:{selected_server}'
         self.logger.debug(call_id)
@@ -84,7 +89,7 @@ class SftpClient:
         result, msg = True, '{} -> OK'.format(selected_server)
 
         try:
-            self.logger.debug('Sending file {}'.format(file))
+            self.logger.debug('Sending file {} to {}'.format(file, destination))
             sftp.put(file, destination)
         except socket.timeout as e:
             self.logger.error(e, exc_info=True)
@@ -93,7 +98,8 @@ class SftpClient:
             self.reset()
         except OSError as e:
             self.logger.error(e, exc_info=True)
-            remote_dir = os.path.dirname(destination)
+            remote_dir = destination.parent
+            self.logger.debug('Remote path: {}'.format(remote_dir))
             sftp.makedirs(remote_dir)
             sftp.put(file, destination)
 
