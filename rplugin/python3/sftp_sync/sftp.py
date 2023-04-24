@@ -98,7 +98,7 @@ class SftpClient:
             self.reset()
         except OSError as e:
             self.logger.error(e, exc_info=True)
-            remote_dir = destination.parent
+            remote_dir = PurePosixPath(destination).parent.as_posix()
             self.logger.debug('Remote path: {}'.format(remote_dir))
             sftp.makedirs(remote_dir)
             sftp.put(file, destination)
