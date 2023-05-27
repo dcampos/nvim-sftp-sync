@@ -14,8 +14,10 @@ class SyncStatus:
     ERROR = 2
 
 
+callers = {}
+
+
 def debounce(wait, call_id, func):
-    callers = {}
 
     def call_func():
         try:
