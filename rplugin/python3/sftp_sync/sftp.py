@@ -42,7 +42,7 @@ class SftpClient:
 
     def __init__(self, nvim: Nvim, servers: dict):
         self.vim = nvim
-        self.servers = servers
+        self.servers = dict(sorted(servers.items()))
         self.pool = {}
         self.runners = {}
         self.logger = logging.getLogger('SFTP_SYNC')
@@ -51,8 +51,10 @@ class SftpClient:
     def sync(self, file) -> None:
         if self.selected_server == None:
             for name, server in self.servers.items():
+                self.logger.debug(f'server: {server["local_path"]}')
                 if Path(file).is_relative_to(server['local_path']):
                     selected_server = name
+                    self.logger.debug(f'selected server: {server}')
                     break
             else:
                 raise Exception("No server selected for the current path")
